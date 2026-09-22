@@ -56,9 +56,21 @@ export default async function ChatPage({ params }: Props) {
   }
 
   const isHost = conversation.host_id === user.id;
-  const otherPerson = isHost
-    ? conversation.participant
+
+  // Handle possible array/object from Supabase join
+  const hostData = Array.isArray(conversation.host)
+    ? conversation.host[0]
     : conversation.host;
+
+  const participantData = Array.isArray(conversation.participant)
+    ? conversation.participant[0]
+    : conversation.participant;
+
+  const activityData = Array.isArray(conversation.activities)
+    ? conversation.activities[0]
+    : conversation.activities;
+
+  const otherPerson = isHost ? participantData : hostData;
 
   // Get messages
   const { data: messages } = await supabase
@@ -87,7 +99,7 @@ export default async function ChatPage({ params }: Props) {
             {otherPerson?.full_name || "Traveler"}
           </h1>
           <p className="text-xs text-gray-500 truncate">
-            {conversation.activities?.title || "Activity"}
+            {activityData?.title || "Activity"}
           </p>
         </div>
       </div>
